@@ -13,14 +13,35 @@ type Score = {
     status: number
 }
 
-class Wordle {
+export class Wordle {
     private password: string[];
+    private history: WordleResult[];
 
     constructor({password}: WordleOptions) {
         this.password = password.split('');
+        this.history = [];
     }
 
     public solve(input: string): WordleResult {
+        if (input.length !== this.password.length) {
+            return {
+                scores: [],
+                isCorrect: false,
+                input: ""
+            }
+        }
+    
+        let scores = this.createScores(input);
+        let result = {
+            input,
+            isCorrect: scores.every(score => score.status === 0),
+            scores
+        }
+        this.history.push(result);
+        return result;
+    }
+
+    private createScores(input: string): Score[] {
         const inputArr = input.split('');
         let scores: Score[] = [];
 
@@ -44,17 +65,6 @@ class Wordle {
                 });
             }
         }
-
-        return {
-            input,
-            isCorrect: scores.every(score => score.status === 0),
-            scores
-        };
+        return scores;
     }
 }
-
-let wordle = new Wordle({password: 'dzban'});
-
-wordle.solve('dzban')
-wordle.solve('dbzna')
-wordle.solve('szyme')
